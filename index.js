@@ -32,6 +32,17 @@ app.get('/', (req, res) => {
   res.send('Hello World!')
 })
 
+app.get('/info', (req, res) => {
+  const numberOfPeople = persons.length || 0
+  const now = new Date()
+  const html = `
+    <p>Phonebook has info for ${numberOfPeople} people</p>
+    <p>${now}</p>
+  `
+
+  res.status(200).send(html)
+})
+
 app.get('/api/persons', (req, res) => {
   res.status(200).json(persons)
 })
