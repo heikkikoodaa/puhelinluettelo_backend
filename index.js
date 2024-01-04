@@ -46,9 +46,21 @@ const findUniqueId = (personsArray) => {
 }
 
 const checkForValidRequestBody = (body) => {
-  if (!body || Object.keys(body).length === 0) return true
+  const errors = []
 
-  return false
+  if (!body || Object.keys(body).length === 0) {
+    errors.push('Request body is empty')
+  }
+
+  if (!body.name) {
+    errors.push('Name is missing')
+  }
+
+  if (!body.number) {
+    errors.push('Number is missing')
+  }
+
+  return errors
 }
 
 app.get('/', (req, res) => {
@@ -91,14 +103,25 @@ app.delete('/api/persons/:id', (req, res) => {
 
 app.post('/api/persons', (req, res) => {
   const body = req.body
-  const isInvalidBody = checkForValidRequestBody(body)
+  const bodyErrors = checkForValidRequestBody(body)
 
-  if (isInvalidBody) {
-    return res.status(400).send('Request body is invalid')
+  if (bodyErrors.length) {
+    return res.status(400).json({ error: bodyErrors })
+  }
+
+  const { name, number } = body
+  const personAlreadyExists = persons.find(person => {
+    const personInBook = person.name.toLowerCase()
+    const personToBeAdded = name.toLowerCase()
+
+    return personInBook === personToBeAdded
+  })
+
+  if (personAlreadyExists) {
+    return res.status(409).json({ error: 'Name must be unique' })
   }
 
   const newPersonId = findUniqueId(persons)
-  const { name, number } = body
   const newPerson = {
     id: newPersonId,
     name,
