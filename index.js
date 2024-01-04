@@ -28,6 +28,29 @@ let persons = [
   },
 ]
 
+const generateUniqueId = () => {
+  return Math.floor(Math.random() * 100000)
+}
+
+const findUniqueId = (personsArray) => {
+  let unique = false
+  let randomId
+
+  while (!unique) {
+    randomId = generateUniqueId()
+
+    unique = persons.every(person => person.id !== randomId)
+  }
+
+  return randomId
+}
+
+const checkForValidRequestBody = (body) => {
+  if (!body || Object.keys(body).length === 0) return true
+
+  return false
+}
+
 app.get('/', (req, res) => {
   res.send('Hello World!')
 })
@@ -64,6 +87,26 @@ app.delete('/api/persons/:id', (req, res) => {
   persons = newPersonsList
 
   res.status(204).end()
+})
+
+app.post('/api/persons', (req, res) => {
+  const body = req.body
+  const isInvalidBody = checkForValidRequestBody(body)
+
+  if (isInvalidBody) {
+    return res.status(400).send('Request body is invalid')
+  }
+
+  const newPersonId = findUniqueId(persons)
+  const { name, number } = body
+  const newPerson = {
+    id: newPersonId,
+    name,
+    number
+  }
+  persons = [...persons, newPerson]
+
+  res.status(200).send('New person successfully created!')
 })
 
 app.listen(PORT, (err) => {
