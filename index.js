@@ -5,7 +5,7 @@ const PORT = 3001
 
 app.use(express.json())
 
-const persons = [
+let persons = [
   {
     id: 1,
     name: 'Kazuma Kiryu',
@@ -56,6 +56,14 @@ app.get('/api/persons/:id', (req, res) => {
   }
 
   res.status(200).send(person)
+})
+
+app.delete('/api/persons/:id', (req, res) => {
+  const personId = Number(req.params.id)
+  const newPersonsList = persons.filter(person => person.id !== personId)
+  persons = newPersonsList
+
+  res.status(204).end()
 })
 
 app.listen(PORT, (err) => {
